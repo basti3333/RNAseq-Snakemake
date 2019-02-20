@@ -1,2 +1,2 @@
-# RNAseq_processing
+# RNAseq Snakemake
 Workflow for processing RNAseq data
