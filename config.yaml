@@ -2,24 +2,22 @@ CONTACT:
   email: linder@embl.de
   person: Bastian Linder
 INPUT:
-    exp_mat: /home/linder/data/yeast/various_datasets/brar_meiosis_2018/GSE108778.expMat.tsv
+    exp_mat: samples.tsv
 LOCAL:
     temp-directory: /tmpdata/linder
     memory: 4g
-    fastq: /tmpdata/linder/data/yeast/various_datasets/brar_meiosis_2018/fastq
-    results: /home/linder/data/yeast/various_datasets/brar_meiosis_2018/results
-    logs: /home/linder/data/yeast/various_datasets/brar_meiosis_2018/logs
-    common_conda: "/home/linder/conda_env_yaml/preprocess.yml"
+    fastq: /scratch/linder/fastq/B122
+    results: results
+    logs: logs
+    common_conda: envs/preprocess.yaml
 META:
     species:
-        saccharomyces_cerevisiae:
-            build: R64-1-1
-            release: 95
-    reference-directory: /home/linder/genomes
-    genome_download_path: "http://ftp.ensembl.org/pub/release-95/fasta/saccharomyces_cerevisiae/dna/Saccharomyces_cerevisiae.R64-1-1.dna.toplevel.fa.gz"
-    annotation_download_path: "http://ftp.ensembl.org/pub/release-95/gtf/saccharomyces_cerevisiae/Saccharomyces_cerevisiae.R64-1-1.95.gtf.gz"
+        homo_sapiens:
+            build: GRCh38
+            release: v29
+    reference-directory: /scratch/linder/genomes
+    genome_download_path: "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_29/GRCh38.primary_assembly.genome.fa.gz"
+    annotation_download_path: "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_29/gencode.v29.annotation.gtf.gz"
 FILTER:
     FLEXBAR:
-        adapter_R1: /home/linder/genomes/flexbar/adapters_ingolia_polyA.fasta
-MAPPING:
-    STAR:
+        adapter_R1: adapters/NEBnext_smallRNA_read1.fasta

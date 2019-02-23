@@ -21,7 +21,7 @@ rule create_dict:
     params:
         picard="$CONDA_PREFIX/share/picard-2.14.1-0/picard.jar",
         temp_directory=config['LOCAL']['temp-directory']
-    conda: config['LOCAL']['common_conda']
+    conda: '../envs/preprocess.yaml'
     shell:
         """java -jar -Djava.io.tmpdir={params.temp_directory} {params.picard} CreateSequenceDictionary\
         REFERENCE={input}\
@@ -37,7 +37,7 @@ rule reduce_gtf:
         temp_directory=config['LOCAL']['temp-directory']
     output:
         "{ref_path}/{species}_{build}_{release}/reduced_annotation.gtf"
-    conda: config['LOCAL']['common_conda']
+    conda: '../envs/preprocess.yaml'
     shell:
         """export _JAVA_OPTIONS=-Djava.io.tmpdir={params.temp_directory} && ReduceGtf -m {params.memory}\
         GTF={input.annotation}\
@@ -55,7 +55,7 @@ rule create_refFlat:
         temp_directory=config['LOCAL']['temp-directory']
     output:
         "{ref_path}/{species}_{build}_{release}/annotation.refFlat"
-    conda: config['LOCAL']['common_conda']
+    conda: '../envs/preprocess.yaml'
     shell:
         """export _JAVA_OPTIONS=-Djava.io.tmpdir={params.temp_directory} && ConvertToRefFlat -m {params.memory}\
         ANNOTATIONS_FILE={input.annotation}\
@@ -74,7 +74,7 @@ rule create_intervals:
         prefix="{species}_{build}_{release}/annotation"
     output:
         intervals="{ref_path}/{species}_{build}_{release}/annotation.rRNA.intervals"
-    conda: config['LOCAL']['common_conda']
+    conda: '../envs/preprocess.yaml'
     shell:
         """export _JAVA_OPTIONS=-Djava.io.tmpdir={params.temp_directory} && CreateIntervalsFiles -m {params.memory}\
         REDUCED_GTF={input.annotation_reduced}\
@@ -89,7 +89,7 @@ rule prep_star_index:
         config_file='config.yaml'
     output:
         '{reference_directory}/star_ref_config.txt'
-    conda: config['LOCAL']['common_conda']
+    conda: '../envs/preprocess.yaml'
     script:
         '../scripts/prep_star.py'
 
@@ -101,11 +101,12 @@ rule create_star_index:
     params:
         genomeDir='{ref_path}/{species}_{build}_{release}/STAR_INDEX/'
     output:
-        '{ref_path}/{species}_{build}_{release}/STAR_INDEX/'
+        '{ref_path}/{species}_{build}_{release}/STAR_INDEX/SA'
     threads: 24
-    conda: config['LOCAL']['common_conda']
+    conda: '../envs/preprocess.yaml'
     shell:
-        """mkdir -p {params.genomeDir}; STAR\
+        """mkdir -p {params.genomeDir};\
+        STAR\
         --runThreadN {threads}\
         --runMode genomeGenerate\
         --genomeDir {params.genomeDir}\

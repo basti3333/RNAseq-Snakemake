@@ -23,12 +23,12 @@ temp_dir = config['LOCAL']['temp-directory']
 flexbar_adapter_1 = config['FILTER']['FLEXBAR']['adapter_R1']
 
 ## define sample IDs from metadata table
-srrs = exp_mat['run']
+#srrs = exp_mat['run']
 
 ## define ENA download URLs
 
 ## define sample IDs from files in folder
-# srrs, = glob_wildcards(fastq_dir+"/{id}.fastq.gz")
+srrs, = glob_wildcards(fastq_dir+"/{id}.fastq.gz")
 
 
 ###
@@ -45,7 +45,7 @@ species=list(config['META']['species'])[0]
 build=[config['META']['species'][species]['build']][0]
 release=[config['META']['species'][species]['release']][0]
 
-index_STAR = expand('{ref_path}/{species}_{build}_{release}/STAR_INDEX/', ref_path=ref_path, species=species, build=build, release=release)
+index_STAR = expand('{ref_path}/{species}_{build}_{release}/STAR_INDEX', ref_path=ref_path, species=species, build=build, release=release)[0]
 
 print("Genome info:")
 print("species: "+species)
@@ -76,7 +76,7 @@ rule all:
     input:
         expand(
             # index
-            ['{ref_path}/{species}_{build}_{release}/STAR_INDEX/SA/SA',
+            ['{ref_path}/{species}_{build}_{release}/STAR_INDEX/SA',
             # fastq
             fastq_dir+'/{sample}.fastq.gz',
             #qc
@@ -107,7 +107,7 @@ rule download_ENA_fasp:
         fasp=lambda wildcards: get_ena_fasp(wildcards.sample),
         outDir=fastq_dir
     conda:
-        "/home/linder/conda_env_yaml/preprocess.yml"
+        config['LOCAL']['common_conda']
     resources: ascp_limit=1
     shell:
         '''
@@ -128,7 +128,7 @@ rule fastqc:
     output:
         '{logs_dir}/fastqc/{sample}_fastqc.html'
     conda:
-        "/home/linder/conda_env_yaml/preprocess.yml"
+        config['LOCAL']['common_conda']
     params:
         outDir='{logs_dir}/fastqc'
     threads: 6
@@ -170,7 +170,7 @@ rule flexbar_se:
         adapter_1=flexbar_adapter_1,
         prefix=lambda wildcards: temp_dir+'/flexbar/'+wildcards.sample
     conda:
-        "/home/linder/conda_env_yaml/preprocess.yml"
+        config['LOCAL']['common_conda']
     threads: 4
     shell:
         '''
@@ -197,34 +197,48 @@ rule flexbar_se:
 #         mv {input} {output} &&
 #         sed -i -e 's/stdout/{params.run_id}/g'  {output}
 #         '''
-        
+ 
 rule filter_nontrimmed:
     input:
-        temp_dir+"flexbar/{sample}.fastq" ## temp file
+        temp_dir+'/flexbar/{sample}.fastq'
     output:
-        temp_dir+"filter/{sample}.fastq" ## temp file
+        temp_dir+"filter/{sample}.fastq"
     shell:
         '''
         awk '/Flexbar_removal/ {{{{print}} for(i=1; i<=3; i++) {{getline; print}}}}' {input} > {output}
         '''
+      
+def determine_input_filter(wildcards):
+    if exp_mat[exp_mat.run == wildcards.sample].trimmed_only == 'TRUE':
+        return temp_dir+"filter/{sample}.fastq"
+    else:
+        return temp_dir+"flexbar/{sample}.fastq"
 
+def determine_input_filter2(wildcards):
+    d=exp_mat[['run', 'trimmed_only']].set_index('run').to_dict
+    if d[[wildcards.sample]] == 'TRUE':
+        return temp_dir+"filter/{sample}.fastq"
+    else:
+        return temp_dir+"flexbar/{sample}.fastq"
+        
+        
 rule align_STAR_SE:
     input:
-        fastq=temp_dir+'/flexbar/{sample}.fastq',
-        index=index_STAR
+        fastq=temp_dir+"filter/{sample}.fastq",
+        index=index_STAR+'/SA'
     output:
         results_dir+'/aln/{sample}.Aligned.sortedByCoord.out.bam'
     log:
         logs_dir+'/aln/{sample}.Log.final.out'
     params:
         run=lambda wildcards: wildcards.sample,
-        prefix=lambda wildcards: results_dir+'/aln/'+wildcards.sample     
+        prefix=lambda wildcards: results_dir+'/aln/'+wildcards.sample
     threads: 12
     shell:
         '''
         STAR \
         --runThreadN {threads} \
-        --genomeDir {input.index} \
+        --genomeDir {index_STAR} \
         --readFilesIn {input.fastq} \
         --outFileNamePrefix {params.prefix}. \
         --outSAMtype BAM SortedByCoordinate &&
@@ -237,7 +251,7 @@ rule index_bam:
     output:
         results_dir+'/aln/{sample}.Aligned.sortedByCoord.out.bam.bai'
     conda:
-        "/home/linder/conda_env_yaml/preprocess.yml"
+        config['LOCAL']['common_conda']
     shell:
         '''
         samtools index {input}
@@ -256,7 +270,7 @@ rule multiqc:
         outDir=logs_dir,
         outFile="multiqc.html"
     conda:
-        "/home/linder/conda_env_yaml/preprocess.yml"
+        config['LOCAL']['common_conda']
     shell:
         '''
         multiqc \
