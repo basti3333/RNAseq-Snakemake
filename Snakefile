@@ -240,6 +240,7 @@ rule align_STAR_SE:
         --runThreadN {threads} \
         --genomeDir {index_STAR} \
         --readFilesIn {input.fastq} \
+        --outSAMattributes MD NH \
         --outFileNamePrefix {params.prefix}. \
         --outSAMtype BAM SortedByCoordinate &&
         mv {params.prefix}.Log.final.out {log}
