@@ -208,13 +208,15 @@ rule filter_nontrimmed:
         awk '/Flexbar_removal/ {{{{print}} for(i=1; i<=3; i++) {{getline; print}}}}' {input} > {output}
         '''
       
+
+## use of .item() from: https://stackoverflow.com/a/36922103
 def determine_input_filter(wildcards):
-    if exp_mat[exp_mat.run == wildcards.sample].trimmed_only[0] == True:
+    if exp_mat[exp_mat.run == wildcards.sample].trimmed_only.item:
         print('using only trimmed reads for '+wildcards.sample)
         return temp_dir+"/filter/{sample}.fastq"
     else:
         print('using all reads for '+wildcards.sample)
-        return temp_dir+"/flexbar/{sample}.fastq"
+        return temp_dir+"/flexbar/{sample}.fastq"    
         
         
 rule align_STAR_SE:
