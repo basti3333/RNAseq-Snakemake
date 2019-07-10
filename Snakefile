@@ -202,29 +202,24 @@ rule filter_nontrimmed:
     input:
         temp_dir+'/flexbar/{sample}.fastq'
     output:
-        temp_dir+"filter/{sample}.fastq"
+        temp_dir+"/filter/{sample}.fastq"
     shell:
         '''
         awk '/Flexbar_removal/ {{{{print}} for(i=1; i<=3; i++) {{getline; print}}}}' {input} > {output}
         '''
       
 def determine_input_filter(wildcards):
-    if exp_mat[exp_mat.run == wildcards.sample].trimmed_only == 'TRUE':
-        return temp_dir+"filter/{sample}.fastq"
+    if exp_mat[exp_mat.run == wildcards.sample].trimmed_only[0] == True:
+        print('using only trimmed reads for '+wildcards.sample)
+        return temp_dir+"/filter/{sample}.fastq"
     else:
-        return temp_dir+"flexbar/{sample}.fastq"
-
-def determine_input_filter2(wildcards):
-    d=exp_mat[['run', 'trimmed_only']].set_index('run').to_dict
-    if d[[wildcards.sample]] == 'TRUE':
-        return temp_dir+"filter/{sample}.fastq"
-    else:
-        return temp_dir+"flexbar/{sample}.fastq"
+        print('using all reads for '+wildcards.sample)
+        return temp_dir+"/flexbar/{sample}.fastq"
         
         
 rule align_STAR_SE:
     input:
-        fastq=temp_dir+"filter/{sample}.fastq",
+        fastq=determine_input_filter,
         index=index_STAR+'/SA'
     output:
         results_dir+'/aln/{sample}.Aligned.sortedByCoord.out.bam'
