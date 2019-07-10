@@ -11,7 +11,7 @@ dependencies:
   - backports.functools_lru_cache=1.5=py_1
   - backports_abc=0.5=py_1
   - bbmap=38.22=h470a237_0
-  - bcftools=1.9=h4da6232_0
+  - bcftools=1.9
   - bowtie=1.2.2=py27h2d50403_1
   - bzip2=1.0.6=h14c3975_1002
   - ca-certificates=2018.11.29=ha4d7672_0
@@ -70,7 +70,7 @@ dependencies:
   - lzstring=1.0.3=py27_0
   - markdown=2.6.11=py_0
   - markupsafe=1.1.0=py27h14c3975_1000
-  - matplotlib=2.2.2=py27_1
+  - matplotlib=2.2.2
   - multiqc=1.7=py_1
   - ncurses=6.1=hf484d3e_1002
   - networkx=2.0=py27_1
@@ -94,7 +94,7 @@ dependencies:
   - python-dateutil=2.7.5=py_0
   - pytz=2018.9=py_0
   - pyyaml=3.13=py27h14c3975_1001
-  - qt=5.6.2=h50c60fd_8
+  - qt=5.6.2
   - readline=7.0=hf8c457e_1001
   - regex=2016.06.24=py27_1
   - requests=2.21.0=py27_1000
