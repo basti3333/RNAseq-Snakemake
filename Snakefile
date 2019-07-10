@@ -14,6 +14,15 @@ configfile: configfile_path
 # experiment metadata
 exp_mat = pd.read_table(config['INPUT']['exp_mat'])
 
+#def define_fastq(fastq_setting):
+if config['INPUT']['fastq_method'] == 'ena':
+    print('using ENA to download fastq files')
+    srrs = exp_mat['run']
+else:
+    srrs, = glob_wildcards(fastq_dir+"/{id}.fastq.gz")
+    print('using fastq files in '+config['LOCAL']['fastq'])
+    
+    
 # Define a few variables to make them easier to reference
 ref_path = config['META']['reference-directory']
 results_dir = config['LOCAL']['results']
@@ -21,24 +30,6 @@ logs_dir = config['LOCAL']['logs']
 fastq_dir = config['LOCAL']['fastq']
 temp_dir = config['LOCAL']['temp-directory']
 flexbar_adapter_1 = config['FILTER']['FLEXBAR']['adapter_R1']
-
-## define sample IDs from metadata table
-#srrs = exp_mat['run']
-
-## define ENA download URLs
-
-## define sample IDs from files in folder
-srrs, = glob_wildcards(fastq_dir+"/{id}.fastq.gz")
-
-
-###
-###
-###
-# srrs = srrs.iloc[11] ## use only first file for testing 
-###
-###
-###
-
 
 # print some info
 species=list(config['META']['species'])[0]
