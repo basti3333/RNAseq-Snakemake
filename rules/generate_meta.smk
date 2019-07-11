@@ -19,11 +19,10 @@ rule create_dict:
         "{ref_path}/{species}_{build}_{release}/genome.dict"
     threads:1
     params:
-        picard="$CONDA_PREFIX/share/picard-2.14.1-0/picard.jar",
         temp_directory=config['LOCAL']['temp-directory']
     conda: '../envs/preprocess.yaml'
     shell:
-        """java -jar -Djava.io.tmpdir={params.temp_directory} {params.picard} CreateSequenceDictionary\
+        """picard CreateSequenceDictionary -Djava.io.tmpdir={params.temp_directory} \
         REFERENCE={input}\
         OUTPUT={output}
         """
