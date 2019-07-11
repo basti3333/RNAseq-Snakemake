@@ -25,6 +25,7 @@ dependencies:
   - cycler=0.10.0=py_1
   - dbus=1.13.0=h4e0c4b3_1000
   - decorator=4.3.2=py_0
+  - dropseq_tools=2.0.0
   - enum34=1.1.6=py27_1001
   - expat=2.2.5=hf484d3e_1002
   - fastp=0.19.6=hd28b015_0
