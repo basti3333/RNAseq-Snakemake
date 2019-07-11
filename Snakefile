@@ -11,6 +11,9 @@ except:
     configfile_path = "config.yaml"    
 configfile: configfile_path
 
+# Include the gtf biotypes yaml
+configfile: config['META']['gtf_biotypes']
+
 # experiment metadata
 exp_mat = pd.read_table(config['INPUT']['exp_mat'])
 
