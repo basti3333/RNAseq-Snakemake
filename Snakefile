@@ -246,6 +246,34 @@ rule index_bam:
         samtools index {input}
         '''
 
+rule RnaSeqMetricsCollector:
+    input:
+        data=results_dir+'/aln/{sample}.Aligned.sortedByCoord.out.bam',
+        refFlat=expand("{ref_path}/{species}_{build}_{release}/annotation.refFlat",
+            ref_path=config['META']['reference-directory'],
+            species=species,
+            release=release,
+            build=build),
+        rRNA_intervals=expand("{ref_path}/{species}_{build}_{release}/annotation.rRNA.intervals",
+            ref_path=config['META']['reference-directory'],
+            species=species,
+            release=release,
+            build=build)
+    params:     
+        temp_directory=config['LOCAL']['temp-directory'],
+        memory=config['LOCAL']['memory']
+    output:
+        rna_metrics=logs_dir+'/aln/{sample}_rna_metrics.txt',
+    conda: 'envs/preprocess.yaml'
+    shell:
+        """
+        picard CollectRnaSeqMetrics -Xmx4g \
+        INPUT={input.data}\
+        OUTPUT={output}\
+        STRAND=FIRST_READ_TRANSCRIPTION_STRAND\
+        REF_FLAT={input.refFlat}\
+        RIBOSOMAL_INTERVALS={input.rRNA_intervals}
+        """
     
 rule multiqc:
     input:
