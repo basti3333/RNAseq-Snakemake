@@ -282,7 +282,8 @@ rule multiqc:
     input:
         expand(logs_dir+'/fastqc/{sample}_fastqc.html', sample=srrs),
         expand(logs_dir+'/flexbar/{sample}.log', sample=srrs),
-        expand(results_dir+'/aln/{sample}.Aligned.sortedByCoord.out.bam',  sample=srrs)
+        expand(results_dir+'/aln/{sample}.Aligned.sortedByCoord.out.bam',  sample=srrs),
+        expand(logs_dir+'/aln/{sample}_rna_metrics.txt', sample=srrs)
     output:
         '{logs_dir}/multiqc.html'
     params:
