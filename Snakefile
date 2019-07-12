@@ -17,15 +17,6 @@ configfile: config['META']['gtf_biotypes']
 # experiment metadata
 exp_mat = pd.read_table(config['INPUT']['exp_mat'])
 
-#def define_fastq(fastq_setting):
-if config['INPUT']['fastq_method'] == 'ena':
-    print('using ENA to download fastq files')
-    srrs = exp_mat['run']
-else:
-    srrs, = glob_wildcards(fastq_dir+"/{id}.fastq.gz")
-    print('using fastq files in '+config['LOCAL']['fastq'])
-    
-    
 # Define a few variables to make them easier to reference
 ref_path = config['META']['reference-directory']
 results_dir = config['LOCAL']['results']
@@ -33,13 +24,12 @@ logs_dir = config['LOCAL']['logs']
 fastq_dir = config['LOCAL']['fastq']
 temp_dir = config['LOCAL']['temp-directory']
 flexbar_adapter_1 = config['FILTER']['FLEXBAR']['adapter_R1']
+index_STAR = expand('{ref_path}/{species}_{build}_{release}/STAR_INDEX', ref_path=ref_path, species=species, build=build, release=release)[0]
 
 # print some info
 species=list(config['META']['species'])[0]
 build=[config['META']['species'][species]['build']][0]
 release=[config['META']['species'][species]['release']][0]
-
-index_STAR = expand('{ref_path}/{species}_{build}_{release}/STAR_INDEX', ref_path=ref_path, species=species, build=build, release=release)[0]
 
 print("Genome info:")
 print("species: "+species)
@@ -51,6 +41,13 @@ print("Using index: "+str(index_STAR))
 print("These are the input run IDs:")
 print(srrs)
 
+#def define_fastq(fastq_setting):
+if config['INPUT']['fastq_method'] == 'ena':
+    print('using ENA to download fastq files')
+    srrs = exp_mat['run']
+else:
+    srrs, = glob_wildcards(fastq_dir+"/{id}.fastq.gz")
+    print('using fastq files in '+config['LOCAL']['fastq'])
 
 # ascp -QT -l 300m -P33001 -i ~/.aspera/asperaweb_id_dsa.openssh  era-fasp@fasp.sra.ebi.ac.uk:/vol1/fastq/SRR644/005/SRR6441685/SRR6441685.fastq.gz
 def get_ena_fasp(run):
@@ -60,11 +57,6 @@ def get_ena_fasp(run):
 def get_ena_ftp(run):
   fasp=str('ftp://ftp.sra.ebi.ac.uk/vol1/fastq/'+run[0:6]+'/00'+run[-1]+'/'+run+'/'+run+'.fastq.gz')
   return fasp
-
-#print(ena_url(srrs))
-  
-# ena_url(srrs)
-
 
 rule all:
     input:
