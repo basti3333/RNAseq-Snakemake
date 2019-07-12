@@ -48,14 +48,12 @@ print("Using index: "+str(index_STAR))
 print("These are the input run IDs:")
 print(srrs)
 
-#def define_fastq(fastq_setting):
-if config['INPUT']['fastq_method'] == 'ena':
-    print('using ENA to download fastq files')
-    srrs = exp_mat['run']
-else:
-    srrs, = glob_wildcards(fastq_dir+"/{id}.fastq.gz")
-    print('using fastq files in '+config['LOCAL']['fastq'])
+###
+### functions
+###
 
+
+### function to get ENA fasp file paths
 # ascp -QT -l 300m -P33001 -i ~/.aspera/asperaweb_id_dsa.openssh  era-fasp@fasp.sra.ebi.ac.uk:/vol1/fastq/SRR644/005/SRR6441685/SRR6441685.fastq.gz
 def get_ena_fasp(run):
   fasp=str('era-fasp@fasp.sra.ebi.ac.uk:/vol1/fastq/'+run[0:6]+'/00'+run[-1]+'/'+run+'/'+run+'.fastq.gz')
@@ -64,6 +62,21 @@ def get_ena_fasp(run):
 def get_ena_ftp(run):
   fasp=str('ftp://ftp.sra.ebi.ac.uk/vol1/fastq/'+run[0:6]+'/00'+run[-1]+'/'+run+'/'+run+'.fastq.gz')
   return fasp
+
+### determine whether we should use only trimmed fastq files for STAR alignment
+## use of .item() from: https://stackoverflow.com/a/36922103
+def determine_input_filter(wildcards):
+    if exp_mat[exp_mat.run == wildcards.sample].trimmed_only.item:
+        print('using only trimmed reads for '+wildcards.sample)
+        return temp_dir+"/filter/{sample}.fastq"
+    else:
+        print('using all reads for '+wildcards.sample)
+        return temp_dir+"/flexbar/{sample}.fastq"    
+
+
+###
+### rules
+###
 
 rule all:
     input:
@@ -200,17 +213,6 @@ rule filter_nontrimmed:
         '''
         awk '/Flexbar_removal/ {{{{print}} for(i=1; i<=3; i++) {{getline; print}}}}' {input} > {output}
         '''
-      
-
-## use of .item() from: https://stackoverflow.com/a/36922103
-def determine_input_filter(wildcards):
-    if exp_mat[exp_mat.run == wildcards.sample].trimmed_only.item:
-        print('using only trimmed reads for '+wildcards.sample)
-        return temp_dir+"/filter/{sample}.fastq"
-    else:
-        print('using all reads for '+wildcards.sample)
-        return temp_dir+"/flexbar/{sample}.fastq"    
-        
         
 rule align_STAR_SE:
     input:
