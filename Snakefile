@@ -67,7 +67,7 @@ def get_ena_ftp(run):
 ### determine whether we should use only trimmed fastq files for STAR alignment
 ## use of .item() from: https://stackoverflow.com/a/36922103
 def determine_input_filter(wildcards):
-    if exp_mat[exp_mat.run == wildcards.sample].trimmed_only.item:
+    if exp_mat[exp_mat.run == wildcards.sample].trimmed_only.item == bool(True):
         print('using only trimmed reads for '+wildcards.sample)
         return temp_dir+"/filter/{sample}.fastq"
     else:
