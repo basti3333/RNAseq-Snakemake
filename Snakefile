@@ -24,13 +24,20 @@ logs_dir = config['LOCAL']['logs']
 fastq_dir = config['LOCAL']['fastq']
 temp_dir = config['LOCAL']['temp-directory']
 flexbar_adapter_1 = config['FILTER']['FLEXBAR']['adapter_R1']
-index_STAR = expand('{ref_path}/{species}_{build}_{release}/STAR_INDEX', ref_path=ref_path, species=species, build=build, release=release)[0]
-
-# print some info
 species=list(config['META']['species'])[0]
 build=[config['META']['species'][species]['build']][0]
 release=[config['META']['species'][species]['release']][0]
+index_STAR = expand('{ref_path}/{species}_{build}_{release}/STAR_INDEX', ref_path=ref_path, species=species, build=build, release=release)[0]
 
+# define source of fastq files
+if config['INPUT']['fastq_method'] == 'ena':
+    print('using ENA to download fastq files')
+    srrs = exp_mat['run']
+else:
+    srrs, = glob_wildcards(fastq_dir+"/{id}.fastq.gz")
+    print('using fastq files in '+config['LOCAL']['fastq'])
+
+# print some info
 print("Genome info:")
 print("species: "+species)
 print("build: "+build)
