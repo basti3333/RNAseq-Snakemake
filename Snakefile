@@ -34,7 +34,8 @@ if config['INPUT']['fastq_method'] == 'ena':
     print('using ENA to download fastq files')
     srrs = exp_mat['run']
 else:
-    srrs, = glob_wildcards(fastq_dir+"/{id}.fastq.gz")
+    #srrs, = glob_wildcards(fastq_dir+"/{id}.fastq.gz")
+    print('using ENA to download fastq files')
     print('using fastq files in '+config['LOCAL']['fastq'])
 
 # print some info
@@ -84,7 +85,7 @@ rule all:
             # index
             ['{ref_path}/{species}_{build}_{release}/STAR_INDEX/SA',
             # fastq
-            fastq_dir+'/{sample}.fastq.gz',
+            #fastq_dir+'/{sample}.fastq.gz',
             #qc
             '{logs_dir}/multiqc.html',
             #filter
