@@ -35,7 +35,7 @@ if config['INPUT']['fastq_method'] == 'ena':
     srrs = exp_mat['run']
 else:
     #srrs, = glob_wildcards(fastq_dir+"/{id}.fastq.gz")
-    print('using ENA to download fastq files')
+    srrs = exp_mat['run']
     print('using fastq files in '+config['LOCAL']['fastq'])
 
 # print some info
